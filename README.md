@@ -6,7 +6,7 @@ Agent Runtime Lab is a governance-first playground for building and evaluating a
 
 ## Why / 为什么做
 
-- 面向面试展示与工程评审：不仅能跑 demo，还能解释“为什么这样设计”。
+- 面向工程实践与评审协作：不仅能跑 demo，还能解释“为什么这样设计”。
 - 解决 Agent 工程常见痛点：不可复现、难回归、上下文失控、指标缺失。
 - 通过 Mock-first 与可观测优先，在无 API Key 环境也能稳定开发。
 
