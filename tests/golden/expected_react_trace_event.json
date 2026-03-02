@@ -1,0 +1,13 @@
+{
+  "session_id": "golden-session",
+  "step_id": "<dynamic-step-id>",
+  "mode": "react",
+  "thought_summary": "return json payload",
+  "selected_tool": "none",
+  "tool_input": null,
+  "tool_output": "{\"status\": \"ok\", \"thought\": \"return json payload\", \"selected_tool\": null}",
+  "state_update": "step_completed",
+  "latency_ms": "<dynamic-latency-ms>",
+  "token_estimate": "<dynamic-token-estimate>",
+  "timestamp": "<dynamic-timestamp>"
+}

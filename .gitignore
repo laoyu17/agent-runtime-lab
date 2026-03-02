@@ -1,0 +1,31 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*.so
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Virtual environments
+.venv/
+venv/
+.env
+
+# Tool caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Runtime artifacts
+outputs/traces/*.jsonl
+outputs/reports/*.html
+outputs/reports/*.md
+
+# OS/editor files
+.DS_Store
+.idea/
+.vscode/

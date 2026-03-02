@@ -1,0 +1,35 @@
+runtime:
+  max_steps: 12
+  mode_default: react
+llm:
+  provider: mock
+  model: mock-gpt
+  mock_seed: 42
+memory:
+  summary_window: 5
+  constraint_extractor: keyword
+retrieval:
+  top_k: 4
+  chunk_size: 500
+tool:
+  timeout_ms: 4000
+  retry: 1
+trace:
+  output_dir: outputs/traces
+  sqlite_path: outputs/traces/trace.db
+  redact_sensitive: true
+  redact_keys:
+    - api_key
+    - token
+    - cookie
+    - password
+    - authorization
+    - secret
+eval:
+  dataset_path: data/benchmarks/tasks.jsonl
+  metrics:
+    - task_success_rate
+    - tool_call_success_rate
+    - avg_steps_per_task
+    - avg_latency_ms
+    - constraint_retention_rate

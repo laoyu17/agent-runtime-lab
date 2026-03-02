@@ -1,0 +1,167 @@
+{
+  "plan_id": "agent-runtime-closure-fix",
+  "version": "v1",
+  "scope": {
+    "module": "agent-runtime-lab",
+    "entrypoint": "src/agent_runtime_lab/app.py"
+  },
+  "steps": [
+    {
+      "id": "S1",
+      "title": "Inject runtime dependencies and session resume support in AgentRuntime",
+      "risk": "med",
+      "inputs": [
+        "src/agent_runtime_lab/app.py"
+      ],
+      "outputs": [
+        "src/agent_runtime_lab/app.py"
+      ]
+    },
+    {
+      "id": "S2",
+      "title": "Implement real tool execution path in Executor with tool selection and metadata",
+      "risk": "high",
+      "inputs": [
+        "src/agent_runtime_lab/executor.py"
+      ],
+      "outputs": [
+        "src/agent_runtime_lab/executor.py"
+      ]
+    },
+    {
+      "id": "S3",
+      "title": "Upgrade runtime loops to multi-step ReAct and plan status progression",
+      "risk": "high",
+      "inputs": [
+        "src/agent_runtime_lab/runtime.py"
+      ],
+      "outputs": [
+        "src/agent_runtime_lab/runtime.py"
+      ]
+    },
+    {
+      "id": "S4",
+      "title": "Unify constraint checks via validator-backed Critic",
+      "risk": "med",
+      "inputs": [
+        "src/agent_runtime_lab/critic.py"
+      ],
+      "outputs": [
+        "src/agent_runtime_lab/critic.py"
+      ]
+    },
+    {
+      "id": "S5",
+      "title": "Wire reliability, memory, retrieval and output validation into runtime chain",
+      "risk": "high",
+      "inputs": [
+        "src/agent_runtime_lab"
+      ],
+      "outputs": [
+        "src/agent_runtime_lab"
+      ]
+    },
+    {
+      "id": "S6",
+      "title": "Add non-breaking CLI flags for resume and strict benchmark thresholds",
+      "risk": "med",
+      "inputs": [
+        "src/agent_runtime_lab/cli.py"
+      ],
+      "outputs": [
+        "src/agent_runtime_lab/cli.py"
+      ]
+    },
+    {
+      "id": "S7",
+      "title": "Expand runtime and validator tests for closure, reliability and session resume",
+      "risk": "high",
+      "inputs": [
+        "tests"
+      ],
+      "outputs": [
+        "tests"
+      ]
+    },
+    {
+      "id": "S8",
+      "title": "Strengthen benchmark dataset tool/constraint assertions and update docs alignment",
+      "risk": "med",
+      "inputs": [
+        "data/benchmarks/tasks.jsonl",
+        "README.md",
+        "docs"
+      ],
+      "outputs": [
+        "data/benchmarks/tasks.jsonl",
+        "README.md",
+        "docs"
+      ]
+    },
+    {
+      "id": "S9",
+      "title": "Run local quality gates and benchmark, then generate verification artifacts",
+      "risk": "med",
+      "inputs": [
+        "scripts/ci_local.sh",
+        "outputs/reports"
+      ],
+      "outputs": [
+        "outputs/reports"
+      ]
+    }
+  ],
+  "file_map": [
+    {
+      "from": "src/agent_runtime_lab/app.py",
+      "to": "src/agent_runtime_lab/app.py",
+      "mode": "update"
+    },
+    {
+      "from": "src/agent_runtime_lab/executor.py",
+      "to": "src/agent_runtime_lab/executor.py",
+      "mode": "update"
+    },
+    {
+      "from": "src/agent_runtime_lab/runtime.py",
+      "to": "src/agent_runtime_lab/runtime.py",
+      "mode": "update"
+    },
+    {
+      "from": "src/agent_runtime_lab/critic.py",
+      "to": "src/agent_runtime_lab/critic.py",
+      "mode": "update"
+    },
+    {
+      "from": "src/agent_runtime_lab/cli.py",
+      "to": "src/agent_runtime_lab/cli.py",
+      "mode": "update"
+    },
+    {
+      "from": "tests",
+      "to": "tests",
+      "mode": "update"
+    },
+    {
+      "from": "data/benchmarks/tasks.jsonl",
+      "to": "data/benchmarks/tasks.jsonl",
+      "mode": "update"
+    },
+    {
+      "from": "README.md",
+      "to": "README.md",
+      "mode": "update"
+    }
+  ],
+  "acceptance": [
+    "No step skipping and exactly one --modules value per start-step",
+    "All runtime edits remain backward compatible for existing CLI/API entrypoints",
+    "Benchmark threshold check supports strict gate and reports pass/fail",
+    "Local quality gate and benchmark can run with mock-first defaults"
+  ],
+  "assumptions": [
+    "Python 3.11+ environment is available in current workspace",
+    "Execution remains mock-first and does not require outbound network",
+    "User confirms each completed step before next step starts"
+  ]
+}

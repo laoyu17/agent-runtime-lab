@@ -1,0 +1,3 @@
+# Exported compatibility requirements from pyproject.toml
+pydantic>=2.7,<3
+PyYAML>=6.0,<7

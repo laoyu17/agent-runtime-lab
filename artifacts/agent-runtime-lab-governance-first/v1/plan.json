@@ -1,0 +1,129 @@
+{
+  "plan_id": "agent-runtime-lab-governance-first",
+  "version": "v1",
+  "title": "Agent Runtime Lab governance-first implementation",
+  "description": "Implement governance baseline first, then build planner/executor/critic runtime with react and plan-execute loops, reliability, evaluation, and reporting.",
+  "steps": [
+    {
+      "id": "g0-repo-bootstrap",
+      "title": "Initialize repository baseline, structure, and Python packaging scaffold",
+      "modules": [
+        "README.md",
+        "pyproject.toml",
+        "requirements.txt",
+        "src",
+        "tests",
+        "docs",
+        "configs",
+        "data",
+        "outputs",
+        "scripts",
+        ".gitignore",
+        "LICENSE"
+      ]
+    },
+    {
+      "id": "g0-quality-ci",
+      "title": "Set up lint/type/test/coverage gates and GitHub Actions CI",
+      "modules": [
+        "pyproject.toml",
+        ".github/workflows/ci.yml",
+        "scripts"
+      ]
+    },
+    {
+      "id": "g0-governance-docs",
+      "title": "Author governance and architecture docs for onboarding and delivery contract",
+      "modules": [
+        "AGENTS.md",
+        "ROADMAP.md",
+        "docs/architecture.md",
+        "docs/design_decisions.md",
+        "docs/trace_schema.md",
+        "docs/eval_protocol.md",
+        "README.md"
+      ]
+    },
+    {
+      "id": "v01-core-types",
+      "title": "Implement core runtime contracts and data models",
+      "modules": [
+        "src/agent_runtime_lab/types.py",
+        "src/agent_runtime_lab/config.py",
+        "src/agent_runtime_lab/result.py"
+      ]
+    },
+    {
+      "id": "v01-runtime-loops",
+      "title": "Implement planner/executor/critic and react/plan-execute loops",
+      "modules": [
+        "src/agent_runtime_lab/planner.py",
+        "src/agent_runtime_lab/executor.py",
+        "src/agent_runtime_lab/critic.py",
+        "src/agent_runtime_lab/runtime.py",
+        "src/agent_runtime_lab/app.py"
+      ]
+    },
+    {
+      "id": "v01-tools-memory-rag",
+      "title": "Implement tool registry, session state, short-term memory, and lightweight retrieval",
+      "modules": [
+        "src/agent_runtime_lab/tools/base.py",
+        "src/agent_runtime_lab/tools/registry.py",
+        "src/agent_runtime_lab/tools/builtin.py",
+        "src/agent_runtime_lab/session.py",
+        "src/agent_runtime_lab/memory.py",
+        "src/agent_runtime_lab/retrieval.py"
+      ]
+    },
+    {
+      "id": "v01-trace-cli",
+      "title": "Implement JSONL+SQLite tracing and core CLI commands with examples",
+      "modules": [
+        "src/agent_runtime_lab/trace.py",
+        "src/agent_runtime_lab/cli.py",
+        "examples",
+        "configs/default.yaml"
+      ]
+    },
+    {
+      "id": "v01-tests",
+      "title": "Add unit/integration/golden-trace tests for v0.1 closure",
+      "modules": [
+        "tests/unit",
+        "tests/integration",
+        "tests/golden"
+      ]
+    },
+    {
+      "id": "v02-reliability",
+      "title": "Add retry/fallback/timeout/repeat-guard and context compression + validators",
+      "modules": [
+        "src/agent_runtime_lab/reliability.py",
+        "src/agent_runtime_lab/validators.py",
+        "src/agent_runtime_lab/memory.py",
+        "tests"
+      ]
+    },
+    {
+      "id": "v03-eval-reporting",
+      "title": "Build benchmark runner, metrics, and markdown/html report generation",
+      "modules": [
+        "data/benchmarks/tasks.jsonl",
+        "src/agent_runtime_lab/eval.py",
+        "src/agent_runtime_lab/reporting.py",
+        "outputs/reports"
+      ]
+    },
+    {
+      "id": "v04-ecosystem-enhancements",
+      "title": "Add MCP-compatible adapter, profile config enhancements, and trace inspection improvements",
+      "modules": [
+        "src/agent_runtime_lab/tools/mcp_adapter.py",
+        "src/agent_runtime_lab/config.py",
+        "src/agent_runtime_lab/cli.py",
+        "docs"
+      ]
+    }
+  ]
+}

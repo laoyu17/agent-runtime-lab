@@ -1,0 +1,9 @@
+{
+  "plan_id": "agent-runtime-closure-fix",
+  "version": "v1",
+  "phase": "handed_off",
+  "approved": true,
+  "verification_passed": true,
+  "current_step_index": 9,
+  "active_step_id": null
+}

@@ -1,0 +1,3 @@
+{"case_id":"tool-1","category":"tool","prompt":"compute a small answer","constraints":["must json"],"subtasks":["step one","step two"]}
+{"case_id":"rag-1","category":"rag","prompt":"answer using docs","context_docs":["doc alpha","doc beta"],"constraints":["must json"]}
+{"case_id":"constraint-1","category":"constraint","prompt":"keep constraints in multi-turn","constraints":["must json","no network"]}

@@ -1,0 +1,8 @@
+title: react-demo
+objective: summarize current objective in one line
+constraints:
+  - must json
+context:
+  - Agent Runtime Lab focuses on governance-first workflow.
+metadata:
+  owner: demo

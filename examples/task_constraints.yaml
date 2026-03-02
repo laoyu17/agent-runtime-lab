@@ -1,0 +1,7 @@
+title: constraint-demo
+objective: provide output respecting constraints
+constraints:
+  - must json
+  - no network
+context:
+  - This task validates constraint retention.

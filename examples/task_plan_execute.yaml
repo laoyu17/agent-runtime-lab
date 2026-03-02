@@ -1,0 +1,11 @@
+title: plan-demo
+objective: finish the task with subtasks
+input_payload:
+  subtasks:
+    - collect context
+    - run execution
+    - produce final response
+constraints:
+  - must json
+context:
+  - Planner should generate a compact plan.
