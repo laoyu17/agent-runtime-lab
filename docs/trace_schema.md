@@ -47,5 +47,6 @@ Trace 用于记录每一步执行证据，支持：
 
 - Trace 默认开启敏感信息脱敏：`TraceConfig.redact_sensitive=true`。
 - 默认脱敏键：`api_key`、`token`、`cookie`、`password`、`authorization`、`secret`（支持嵌套结构）。
+- 默认键匹配模式：`TraceConfig.redact_match_mode=exact`（可选 `contains`）。
 - JSONL 与 SQLite(`raw_json`) 使用同一脱敏结果，避免双轨不一致。
 - 可通过 `TraceConfig.redact_sensitive=false` 显式关闭（仅用于受控调试场景）。

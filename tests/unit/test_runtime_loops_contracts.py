@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
+from pathlib import Path
 
 from agent_runtime_lab.app import AgentRuntime
 from agent_runtime_lab.critic import Critic, CriticDecision
@@ -8,6 +9,7 @@ from agent_runtime_lab.executor import Executor
 from agent_runtime_lab.planner import Planner
 from agent_runtime_lab.reliability import ReliabilityManager, RepeatCallGuard
 from agent_runtime_lab.runtime import PlanExecuteLoop, ReActLoop
+from agent_runtime_lab.session import JsonSessionStore
 from agent_runtime_lab.types import ExecutionStep, PlanNode, SessionState, TaskSpec
 
 
@@ -55,6 +57,21 @@ def test_executor_updates_session_with_plan_node() -> None:
     assert session.current_step == 1
     assert len(session.history) == 1
     assert session.interim_conclusions[-1] == "collect"
+
+
+def test_executor_plan_node_prioritizes_node_semantics_over_global_goal() -> None:
+    task = TaskSpec(
+        title="plan",
+        objective="Compute 9+9 with calculator",
+    )
+    session = SessionState(mode="plan_execute", task=task, goal=task.objective)
+    node = PlanNode(title="step-1", description="parse request")
+
+    step = Executor().execute(session, node)
+
+    assert step.selected_tool is None
+    assert step.tool_call is None
+    assert step.state_update == "step_completed"
 
 
 def test_critic_handles_failure_and_json_constraints() -> None:
@@ -201,6 +218,29 @@ def test_agent_runtime_resume_reuses_session_history() -> None:
     assert len(second.final_state.history) >= 4
 
 
+def test_agent_runtime_resume_persists_across_runtime_instances(
+    tmp_path: Path,
+) -> None:
+    task = TaskSpec(title="resume-json", objective="answer")
+    runtime1 = AgentRuntime(
+        max_steps=4,
+        session_store=JsonSessionStore(tmp_path / "sessions"),
+    )
+    first = runtime1.run(task, mode="react", session_id="persist", resume=False)
+    assert first.success is True
+
+    runtime2 = AgentRuntime(
+        max_steps=4,
+        session_store=JsonSessionStore(tmp_path / "sessions"),
+    )
+    second = runtime2.run(task, mode="react", session_id="persist", resume=True)
+
+    assert second.success is True
+    assert second.final_state is not None
+    assert len(second.final_state.history) >= 4
+    assert second.final_state.current_step == 4
+
+
 def test_runtime_injects_retrieval_memory_and_validation_metadata() -> None:
     runtime = AgentRuntime(max_steps=2)
     task = TaskSpec(
@@ -215,6 +255,8 @@ def test_runtime_injects_retrieval_memory_and_validation_metadata() -> None:
     assert result.success is True
     first = result.steps[0]
     assert "retrieval" in first.metadata
+    assert first.metadata["retrieval"]["injected_hint"]
+    assert first.metadata["retrieval"]["hits"][0]["excerpt"]
     assert "memory" in first.metadata
     assert "validation" in first.metadata
     assert first.metadata["validation"]["passed"] is True

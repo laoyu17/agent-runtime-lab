@@ -54,7 +54,15 @@ class Executor:
     def execute(self, session: SessionState, node: PlanNode | None) -> ExecutionStep:
         started = perf_counter()
         thought = node.description.strip() if node else session.goal.strip()
-        selected_tool = self._select_tool(session, node, thought)
+        retrieval_hint = ""
+        if node is not None:
+            raw_hint = node.metadata.get("retrieval_hint")
+            if isinstance(raw_hint, str):
+                retrieval_hint = raw_hint.strip()
+        reasoning_input = (
+            thought if not retrieval_hint else f"{thought}\n{retrieval_hint}"
+        )
+        selected_tool = self._select_tool(session, node, reasoning_input)
 
         tool_call: ToolCall | None = None
         tool_result: ToolResult | None = None
@@ -64,7 +72,7 @@ class Executor:
         state_update = "step_completed"
 
         if selected_tool is not None:
-            arguments = self._build_arguments(selected_tool, session, thought)
+            arguments = self._build_arguments(selected_tool, session, reasoning_input)
             if self._should_block_tool_call(session, selected_tool):
                 success = False
                 state_update = "policy_blocked_no_network"
@@ -97,6 +105,8 @@ class Executor:
             metadata["tool_execution"] = tool_meta
         if policy_meta is not None:
             metadata["policy"] = policy_meta
+        if retrieval_hint:
+            metadata["retrieval_hint"] = retrieval_hint
 
         step = ExecutionStep(
             plan_step_id=node.step_id if node else None,
@@ -194,14 +204,12 @@ class Executor:
         node: PlanNode | None,
         thought: str,
     ) -> str | None:
-        text = " ".join(
-            [
-                session.goal,
-                session.task.objective,
-                thought,
-                node.title if node else "",
-            ]
-        ).lower()
+        if node is None:
+            # ReAct mode: keep global objective context for broad tool matching.
+            text = " ".join([session.goal, session.task.objective, thought]).lower()
+        else:
+            # Plan-Execute mode: prioritize the current node semantics.
+            text = " ".join([node.title, thought]).lower()
 
         if _URL_PATTERN.search(text) or any(
             keyword in text

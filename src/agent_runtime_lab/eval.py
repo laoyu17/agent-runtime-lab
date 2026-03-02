@@ -368,9 +368,23 @@ def _normalize_case_payload(payload: dict[str, Any]) -> dict[str, Any]:
     prompt = str(payload.get("prompt") or payload.get("objective") or "")
     category = str(payload.get("category") or "tool")
     normalized = dict(payload)
+    metadata = normalized.get("metadata")
+    if isinstance(metadata, dict):
+        normalized_metadata: dict[str, Any] = dict(metadata)
+    else:
+        normalized_metadata = {}
+
+    raw_subtasks = normalized.get("subtasks")
+    if isinstance(raw_subtasks, list) and "subtasks" not in normalized_metadata:
+        clean_subtasks = [str(item) for item in raw_subtasks if str(item).strip()]
+        if clean_subtasks:
+            normalized_metadata["subtasks"] = clean_subtasks
+    normalized.pop("subtasks", None)
+
     normalized["case_id"] = case_id
     normalized["prompt"] = prompt
     normalized["category"] = category
+    normalized["metadata"] = normalized_metadata
     return normalized
 
 

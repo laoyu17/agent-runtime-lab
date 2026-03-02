@@ -6,7 +6,7 @@ import json
 import os
 from copy import deepcopy
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import yaml
 from pydantic import BaseModel, ConfigDict, Field
@@ -23,6 +23,8 @@ class ConfigBase(BaseModel):
 class RuntimeConfig(ConfigBase):
     max_steps: int = Field(default=12, ge=1)
     mode_default: ExecutionMode = "react"
+    session_store_backend: Literal["memory", "json"] = "json"
+    session_store_path: str = "outputs/sessions"
 
 
 class LLMConfig(ConfigBase):
@@ -52,6 +54,7 @@ class TraceConfig(ConfigBase):
     output_dir: str = "outputs/traces"
     sqlite_path: str = "outputs/traces/trace.db"
     redact_sensitive: bool = True
+    redact_match_mode: Literal["exact", "contains"] = "exact"
     redact_keys: list[str] = Field(
         default_factory=lambda: [
             "api_key",

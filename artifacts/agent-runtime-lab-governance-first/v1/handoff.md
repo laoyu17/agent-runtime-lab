@@ -31,8 +31,12 @@ Key outcomes:
 ## Verification Snapshot
 
 - Middleware plan status: all steps completed
-- Local gates: pass (`54 passed`, coverage `94.98%`)
+- Local gates: pass (`69 passed`, coverage `93.19%`)
+- Strict benchmark acceptance: pass in both modes (`react`, `plan_execute`) with thresholds enabled
 - Final report artifacts present under `outputs/reports/`
+- Acceptance reports:
+  - `/tmp/arl-acceptance-2026-03-02/react/benchmark_report.md`
+  - `/tmp/arl-acceptance-2026-03-02/plan/benchmark_report.md`
 
 ## Next Suggested Action
 

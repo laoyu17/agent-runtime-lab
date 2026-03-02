@@ -32,7 +32,18 @@ Result:
 - ruff check: pass
 - black --check: pass
 - mypy src: pass
-- pytest + coverage: pass (`54 passed`, `coverage 94.98%`)
+- pytest + coverage: pass (`69 passed`, `coverage 93.19%`)
+
+## Strict Benchmark Acceptance (2026-03-02)
+
+Executed commands:
+- `python -m agent_runtime_lab.cli run-benchmark --dataset data/benchmarks/tasks.jsonl --out /tmp/arl-acceptance-2026-03-02/react --mode react --strict-thresholds`
+- `python -m agent_runtime_lab.cli run-benchmark --dataset data/benchmarks/tasks.jsonl --out /tmp/arl-acceptance-2026-03-02/plan --mode plan_execute --strict-thresholds`
+
+Result:
+- react: pass (`task_success_rate=0.95`, `tool_call_success_rate=1.0`, `constraint_retention_rate=0.95`)
+- plan_execute: pass (`task_success_rate=0.95`, `tool_call_success_rate=1.0`, `constraint_retention_rate=0.95`)
+- Known failed sample (both modes): `constraint-03` (expected `search_docs`, actual `policy_blocked_no_network` on `web_fetch_mock`)
 
 ## Final Checks
 

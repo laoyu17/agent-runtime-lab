@@ -48,13 +48,14 @@ Cross-cutting: SessionStore, TraceStore, EvalRunner
 ## 3. 数据流
 
 1. 读取 `TaskSpec` + 配置。
-2. 初始化/恢复 `SessionState`（`session_id + resume`）。
+2. 初始化/恢复 `SessionState`（`session_id + resume`，CLI 默认 JSON 持久化会话存储）。
 3. 预建检索索引（`Retriever.ingest(task.context)`）。
 4. 执行 loop：
    - Executor 选择工具；命中 `no network` 策略时前置拦截并标记 `policy_blocked_no_network`；
    - 未命中策略时调用工具；
    - Reliability 检查 timeout/retry/repeat-call；
    - OutputValidator 校验 JSON/规则约束（并保留禁止联网的兜底校验）；
+   - Retrieval 命中摘要注入当前执行输入（同时写入 step metadata）；
    - MemoryManager 压缩并写入 `session.memory_summary`；
    - Critic 统一决策是否继续。
 5. 汇总 `RunResult` 指标（steps/tool_calls/tool_call_success/constraint_retained）。
@@ -72,4 +73,6 @@ Cross-cutting: SessionStore, TraceStore, EvalRunner
 
 - MCP Adapter Layer：`MCPAdapterLayer` / `RegistryBackedMCPAdapter`。
 - 配置治理：`load_config(path, profile, env_prefix)` 支持 profile patch + 环境变量覆盖（如 `ARL_RUNTIME__MAX_STEPS=20`）。
+- 会话治理：`runtime.session_store_backend/session_store_path` 支持内存或 JSON 持久化会话。
+- Trace 脱敏策略：`trace.redact_match_mode` 支持 `exact/contains`，默认 `exact`。
 - Trace 检视增强：`inspect-trace` 支持 JSON 输出、tool 过滤、limit 限制、SQLite 直接读取。

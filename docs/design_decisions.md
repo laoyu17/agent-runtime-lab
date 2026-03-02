@@ -44,9 +44,15 @@
 ## D-009：Trace 默认脱敏并允许显式关闭
 
 - 决策：Trace 落盘链路默认执行敏感字段脱敏，覆盖 JSONL 与 SQLite `raw_json`；通过配置可显式关闭。
-- 理由：满足合规最小暴露原则，同时保留受控调试场景下的可追溯性。
+- 补充：脱敏键匹配默认使用 `exact`（可切换 `contains`），避免误伤 `token_estimate` 等业务字段。
+- 理由：满足合规最小暴露原则，同时保留受控调试场景下的可追溯性，并降低误脱敏风险。
 
 ## D-010：评测口径支持“预期违规且被策略拦截”通过
 
 - 决策：当样本 `metadata.expected_constraint_violation=true` 且运行时出现 `policy_blocked_no_network` 时，按通过计分。
 - 理由：该类样本目标是验证策略拦截能力，而非任务执行成功；按失败计分会系统性低估约束治理能力。
+
+## D-011：CLI 默认会话恢复采用 JSON 持久化
+
+- 决策：CLI 默认 `runtime.session_store_backend=json`，会话落盘到 `runtime.session_store_path`（默认 `outputs/sessions`）。
+- 理由：保证 `--session-id + --resume` 在跨进程调用时语义一致，避免仅进程内可恢复。

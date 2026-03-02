@@ -18,6 +18,7 @@ Agent Runtime Lab is a governance-first playground for building and evaluating a
 - Tool Registry：支持 Local Function、HTTP API、MCP-style Adapter。
 - 可靠性治理：timeout/retry/repeat-call guard。
 - 上下文治理：retrieval 证据注入 + memory 摘要压缩 + output validator。
+- 会话恢复：CLI 默认使用 JSON 持久化会话存储（`outputs/sessions`）。
 - Trace：JSONL 明细 + SQLite 索引统计（默认敏感字段脱敏，可配置关闭）。
 - Eval：20 条 benchmark（8/6/6）+ 核心指标 + 报告导出。
 

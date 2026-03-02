@@ -54,6 +54,7 @@ def test_cli_commands_integration(tmp_path: Path) -> None:
     out_dir = tmp_path / "reports"
     dataset_file = tmp_path / "dataset.jsonl"
     trace_dir = tmp_path / "trace"
+    session_dir = tmp_path / "sessions"
 
     task_file.write_text(
         "\n".join(
@@ -81,7 +82,12 @@ def test_cli_commands_integration(tmp_path: Path) -> None:
 
     yaml.safe_dump(
         {
-            "runtime": {"max_steps": 3, "mode_default": "react"},
+            "runtime": {
+                "max_steps": 3,
+                "mode_default": "react",
+                "session_store_backend": "json",
+                "session_store_path": str(session_dir),
+            },
             "profiles": {
                 "fast": {
                     "runtime": {

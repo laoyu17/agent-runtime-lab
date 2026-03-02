@@ -7,6 +7,7 @@ from pydantic import ValidationError
 
 from agent_runtime_lab.cli import _build_runtime
 from agent_runtime_lab.config import AppConfig, list_profiles, load_config, save_config
+from agent_runtime_lab.session import JsonSessionStore, SessionStore
 
 
 def test_load_default_config_file() -> None:
@@ -14,9 +15,12 @@ def test_load_default_config_file() -> None:
 
     assert config.runtime.max_steps == 12
     assert config.runtime.mode_default == "react"
+    assert config.runtime.session_store_backend == "json"
+    assert config.runtime.session_store_path == "outputs/sessions"
     assert config.llm.provider == "mock"
     assert config.eval.dataset_path == "data/benchmarks/tasks.jsonl"
     assert config.trace.redact_sensitive is True
+    assert config.trace.redact_match_mode == "exact"
     assert "token" in config.trace.redact_keys
 
 
@@ -143,6 +147,7 @@ def test_build_runtime_applies_config_to_runtime_dependencies() -> None:
     runtime = _build_runtime(config)
 
     assert runtime.max_steps == 3
+    assert isinstance(runtime.session_store, JsonSessionStore)
     assert runtime.retriever.top_k == 6
     assert runtime.retriever.chunk_size == 128
     assert runtime.reliability_manager.retry_policy.max_retries == 2
@@ -150,3 +155,19 @@ def test_build_runtime_applies_config_to_runtime_dependencies() -> None:
     for spec in runtime.tool_registry.list_specs():
         assert spec.timeout_ms == 1234
         assert spec.retry == 2
+
+
+def test_build_runtime_can_use_memory_session_store() -> None:
+    config = AppConfig.from_dict(
+        {
+            "runtime": {
+                "max_steps": 3,
+                "mode_default": "react",
+                "session_store_backend": "memory",
+            },
+        }
+    )
+
+    runtime = _build_runtime(config)
+    assert isinstance(runtime.session_store, SessionStore)
+    assert not isinstance(runtime.session_store, JsonSessionStore)

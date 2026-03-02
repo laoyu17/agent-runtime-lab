@@ -54,15 +54,20 @@ class _BaseLoop:
             node.status = "in_progress"
 
         query = node.description if node is not None else session.goal
-        retrieval_evidence = self._collect_retrieval_evidence(query)
+        retrieval_evidence, retrieval_hint = self._collect_retrieval_evidence(query)
+        execution_node = node
+        if node is not None and retrieval_hint:
+            execution_node = node.model_copy(deep=True)
+            execution_node.metadata["retrieval_hint"] = retrieval_hint
 
-        step = self.executor.execute(session, node)
+        step = self.executor.execute(session, execution_node)
         steps.append(step)
 
         if retrieval_evidence:
             step.metadata["retrieval"] = {
                 "query": query,
                 "hits": retrieval_evidence,
+                "injected_hint": retrieval_hint,
             }
 
         if not self._guard_repeat_tool_call(session, step):
@@ -247,9 +252,12 @@ class _BaseLoop:
         if error not in session.error_log:
             session.error_log.append(error)
 
-    def _collect_retrieval_evidence(self, query: str) -> list[dict[str, Any]]:
+    def _collect_retrieval_evidence(
+        self,
+        query: str,
+    ) -> tuple[list[dict[str, Any]], str | None]:
         if self.retriever is None or not query.strip():
-            return []
+            return [], None
 
         hits = self.retriever.search(query)
         evidence: list[dict[str, Any]] = []
@@ -259,9 +267,24 @@ class _BaseLoop:
                     "chunk_id": hit.chunk_id,
                     "source": hit.source,
                     "score": round(hit.score, 6),
+                    "excerpt": self._trim_excerpt(hit.text, max_chars=180),
                 }
             )
-        return evidence
+        hint = (
+            f"retrieval_evidence: {self._trim_excerpt(hits[0].text, max_chars=220)}"
+            if hits
+            else None
+        )
+        return evidence, hint
+
+    @staticmethod
+    def _trim_excerpt(text: str, max_chars: int) -> str:
+        normalized = " ".join(text.split())
+        if len(normalized) <= max_chars:
+            return normalized
+        if max_chars <= 3:
+            return normalized[:max_chars]
+        return f"{normalized[: max_chars - 3]}..."
 
     def _sync_memory(self, session: SessionState, step: ExecutionStep) -> None:
         if self.memory_manager is None:

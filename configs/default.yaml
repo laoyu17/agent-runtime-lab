@@ -1,6 +1,8 @@
 runtime:
   max_steps: 12
   mode_default: react
+  session_store_backend: json
+  session_store_path: outputs/sessions
 llm:
   provider: mock
   model: mock-gpt
@@ -18,6 +20,7 @@ trace:
   output_dir: outputs/traces
   sqlite_path: outputs/traces/trace.db
   redact_sensitive: true
+  redact_match_mode: exact
   redact_keys:
     - api_key
     - token

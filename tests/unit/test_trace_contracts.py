@@ -105,6 +105,78 @@ def test_trace_store_can_disable_sensitive_redaction(tmp_path: Path) -> None:
     assert row["tool_output"]["password"] == "keep-too"
 
 
+def test_trace_store_default_exact_match_avoids_token_estimate_over_redaction(
+    tmp_path: Path,
+) -> None:
+    traces_dir = tmp_path / "trace"
+    db_path = traces_dir / "trace.db"
+    store = TraceStore(output_dir=str(traces_dir), sqlite_path=str(db_path))
+    event = TraceEvent(
+        session_id="s-exact",
+        step_id="step-1",
+        mode="react",
+        thought_summary="check",
+        selected_tool="none",
+        tool_input={"token_estimate": 12, "token": "abc"},
+        tool_output={"token_estimate": 34, "token": "xyz"},
+        state_update="done",
+        latency_ms=0,
+        token_estimate=56,
+    )
+
+    trace_file = store.append(event, trace_file=traces_dir / "all.jsonl")
+    row = TraceStore.read_jsonl(trace_file)[0]
+    assert row["tool_input"]["token"] == "***REDACTED***"
+    assert row["tool_output"]["token"] == "***REDACTED***"
+    assert row["tool_input"]["token_estimate"] == 12
+    assert row["tool_output"]["token_estimate"] == 34
+    assert row["token_estimate"] == 56
+
+
+def test_trace_store_contains_match_keeps_legacy_substring_behavior(
+    tmp_path: Path,
+) -> None:
+    traces_dir = tmp_path / "trace"
+    db_path = traces_dir / "trace.db"
+    store = TraceStore(
+        output_dir=str(traces_dir),
+        sqlite_path=str(db_path),
+        redact_match_mode="contains",
+    )
+    event = TraceEvent(
+        session_id="s-contains",
+        step_id="step-1",
+        mode="react",
+        thought_summary="check",
+        selected_tool="none",
+        tool_input={"token_estimate": 12},
+        tool_output={"token_estimate": 34},
+        state_update="done",
+        latency_ms=0,
+        token_estimate=56,
+    )
+
+    trace_file = store.append(event, trace_file=traces_dir / "all.jsonl")
+    row = TraceStore.read_jsonl(trace_file)[0]
+    assert row["tool_input"]["token_estimate"] == "***REDACTED***"
+    assert row["tool_output"]["token_estimate"] == "***REDACTED***"
+
+
+def test_trace_store_rejects_invalid_redact_match_mode(tmp_path: Path) -> None:
+    traces_dir = tmp_path / "trace"
+    db_path = traces_dir / "trace.db"
+    try:
+        TraceStore(
+            output_dir=str(traces_dir),
+            sqlite_path=str(db_path),
+            redact_match_mode="unknown",
+        )
+    except ValueError as exc:
+        assert "redact_match_mode" in str(exc)
+    else:
+        raise AssertionError("expected ValueError for invalid redact_match_mode")
+
+
 def test_trace_store_append_many_and_filter(tmp_path: Path) -> None:
     traces_dir = tmp_path / "trace"
     db_path = traces_dir / "events.db"

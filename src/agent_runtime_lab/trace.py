@@ -35,11 +35,19 @@ class TraceStore:
         output_dir: str,
         sqlite_path: str,
         redact_sensitive: bool = True,
+        redact_match_mode: str = "exact",
         redact_keys: list[str] | None = None,
     ) -> None:
         self.output_dir = Path(output_dir)
         self.sqlite_path = Path(sqlite_path)
         self.redact_sensitive = redact_sensitive
+        normalized_mode = str(redact_match_mode).strip().lower()
+        if normalized_mode not in {"exact", "contains"}:
+            raise ValueError(
+                "redact_match_mode must be 'exact' or 'contains', "
+                f"got: {redact_match_mode}"
+            )
+        self.redact_match_mode = normalized_mode
         keys = redact_keys if redact_keys is not None else list(_DEFAULT_REDACT_KEYS)
         self.redact_keys = tuple(
             self._normalize_key(item) for item in keys if self._normalize_key(item)
@@ -174,7 +182,9 @@ class TraceStore:
 
     def _is_sensitive_key(self, key: str) -> bool:
         normalized = self._normalize_key(key)
-        return any(token in normalized for token in self.redact_keys)
+        if self.redact_match_mode == "contains":
+            return any(token in normalized for token in self.redact_keys)
+        return normalized in self.redact_keys
 
     @staticmethod
     def _normalize_key(key: str) -> str:

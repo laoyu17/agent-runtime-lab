@@ -17,6 +17,7 @@ from agent_runtime_lab.memory import MemoryManager
 from agent_runtime_lab.reliability import ReliabilityManager, RetryPolicy
 from agent_runtime_lab.reporting import export_report
 from agent_runtime_lab.retrieval import Retriever
+from agent_runtime_lab.session import JsonSessionStore, SessionStore
 from agent_runtime_lab.tools import ToolRegistry, create_builtin_tools
 from agent_runtime_lab.trace import TraceStore, run_result_to_events
 from agent_runtime_lab.types import ExecutionMode, TaskSpec
@@ -78,9 +79,17 @@ def _build_runtime(config: AppConfig) -> AgentRuntime:
         chunk_size=config.retrieval.chunk_size,
         top_k=config.retrieval.top_k,
     )
+    if config.runtime.session_store_backend == "json":
+        session_store: SessionStore = JsonSessionStore(
+            config.runtime.session_store_path
+        )
+    else:
+        session_store = SessionStore()
+
     return AgentRuntime(
         max_steps=config.runtime.max_steps,
         tool_registry=registry,
+        session_store=session_store,
         memory_manager=memory_manager,
         retriever=retriever,
         reliability_manager=reliability_manager,
@@ -127,6 +136,7 @@ def _cmd_run_task(args: argparse.Namespace) -> int:
         config.trace.output_dir,
         config.trace.sqlite_path,
         redact_sensitive=config.trace.redact_sensitive,
+        redact_match_mode=config.trace.redact_match_mode,
         redact_keys=list(config.trace.redact_keys),
     )
     trace_file = store.append_many(run_result_to_events(result))
@@ -157,6 +167,7 @@ def _cmd_run_benchmark(args: argparse.Namespace) -> int:
         config.trace.output_dir,
         config.trace.sqlite_path,
         redact_sensitive=config.trace.redact_sensitive,
+        redact_match_mode=config.trace.redact_match_mode,
         redact_keys=list(config.trace.redact_keys),
     )
     runner = EvalRunner(runtime=runtime, trace_store=trace_store, mode_default=mode)

@@ -41,6 +41,7 @@ def test_load_benchmark_cases_reads_jsonl(tmp_path: Path) -> None:
             "category": "tool",
             "prompt": "demo",
             "constraints": ["must json"],
+            "subtasks": ["first", "second"],
         },
         {
             "case_id": "rag-1",
@@ -59,6 +60,7 @@ def test_load_benchmark_cases_reads_jsonl(tmp_path: Path) -> None:
     assert len(cases) == 2
     assert cases[0].case_id == "tool-1"
     assert cases[1].category == "rag"
+    assert cases[0].metadata["subtasks"] == ["first", "second"]
 
     try:
         load_benchmark_cases(tmp_path / "missing.jsonl")
